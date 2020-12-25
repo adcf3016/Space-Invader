@@ -21,7 +21,7 @@ lossQuestion	BYTE	"You Lose!", 0dh, 0ah
 
 Invader			BYTE	"^", 0h 	
 Invader2		BYTE	"/|\", 0h
-Invader3		BYTE	"^", 0h
+Invader3		BYTE	"-", 0h
 InvaderMoveStep	BYTE	3
 InvaderFrontColor	BYTE	white
 InvaderBackColor	BYTE	green*16
@@ -245,9 +245,26 @@ ClearInvaderPosBlack PROC USES eax edx
 	mov ah, black
 	mov al, black
 	call SetTextColor
+	
+	push edx
+	sub dh, 1
 	call Gotoxy
 	mov edx, offset background
 	call WriteString
+	pop edx
+	push edx
+	sub dl, 1
+	call Gotoxy
+	mov edx, offset background
+	call WriteString
+	call WriteString
+	call WriteString
+	pop edx
+	add dh, 1
+	call Gotoxy
+	mov edx, offset background
+	call WriteString
+	
 	ret
 ClearInvaderPosBlack ENDP
 
