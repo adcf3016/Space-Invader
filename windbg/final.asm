@@ -32,9 +32,9 @@ InvaderY			BYTE	25
 OldInvaderX		BYTE	20
 OldInvaderY		BYTE	25
 
-BulletSymbol		BYTE	0fh, 0
-BulletFrontColor	BYTE	lightblue
-BulletBackColor		BYTE	blue*16
+BulletSymbol		BYTE	"^", 0
+BulletFrontColor	BYTE	yellow
+BulletBackColor		BYTE	red*16
 BulletFlag			BYTE	0
 BulletX				BYTE	0
 BulletY				BYTE	25
@@ -65,9 +65,9 @@ particleX			BYTE	?
 particleY			BYTE	?
 explosionFlag		BYTE	0
 explosionFrontColor	BYTE	magenta
-explosionBackColor	BYTE	gray*16
+explosionBackColor	BYTE	yellow*16
 
-MonsterSymbol		BYTE	" O  O ", 0
+MonsterSymbol		BYTE	" *__* ", 0
 MonsterSize			BYTE	6
 MonsterResetSymbol	BYTE	6 DUP(" ")
 MonsterInitX			BYTE	0
@@ -78,6 +78,7 @@ MonsterFrontColor		BYTE	magenta
 MonsterBackColor		BYTE	yellow*16
 MonsterHitBoundryFlag	BYTE 	0
 MonsterResetLine		BYTE	80 DUP(" ")
+MonsterMoveSpeed		BYTE	100
 
 
 background BYTE	" "
@@ -476,21 +477,25 @@ ShowLevel PROC USES eax edx
 	call Gotoxy
 	cmp secondroundFlag, 0 ;若secondroundFlag=0則維持
 	je remain
+	cmp thirdroundFlag, 0
+	je isTwo
+	jmp isThree
+	
+isTwo:
+	mov MonsterMoveSpeed, 85
 	cmp level, 2
 	je remain
-	cmp level, 2
-	jae dontReset
-	call ResetPos
-dontReset:
 	mov level, 2
-	cmp thirdroundFlag, 0  ;若thirdroundFlag=0則維持
-	je remain
+	call ResetPos
+	jmp remain
+	
+isThree:
+	mov MonsterMoveSpeed, 50
 	cmp level, 3
 	je remain
-	call ResetPos
 	mov level, 3
+	call ResetPos
 
-	
 remain:
 	mov eax, level
 	call WriteDec
@@ -760,6 +765,7 @@ L5: ;三關都贏了要繼續的話就初始化
 	mov secondroundFlag, 0
 	mov thirdroundFlag, 0
 	mov restartFlag, 1
+	mov MonsterMoveSpeed, 100
 	ret
 	
 L4:	;判斷還有沒有命
@@ -787,13 +793,14 @@ L1: ;初始化值
 	mov level, 1
 	mov secondroundFlag, 0
 	mov thirdroundFlag, 0
+	mov MonsterMoveSpeed, 100
 	ret	
 CheckLife ENDP
 
 ;判斷鍵盤輸入
 HandleKeyEvent PROC
 	pushad
-	mov eax, 100
+	movsx eax, MonsterMoveSpeed
 	call Delay		; 延遲
 	call ReadKey	; 讀按鍵
 	
@@ -875,7 +882,7 @@ HandleKeyEventLeftMove ENDP
 ;右邊輸入
 HandleKeyEventRightMove PROC USES eax
 	mov al, screenRightBoundry
-	dec al
+	inc al
 	cmp InvaderX, al	; check right boundry
 	jae stay
 	mov al, InvaderMoveStep
