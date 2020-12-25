@@ -44,7 +44,7 @@ OldBulletY			BYTE	0
 scoreColor	DWORD	white+(black*16)
 scoreMsg	BYTE	"Score:", 0
 score		DWORD	0
-winScore	DWORD	10
+winScore	DWORD	15
 scoreY		BYTE	27
 scoreX		BYTE	25
 
@@ -175,6 +175,7 @@ L0:
 	call ClearMonster
 	call ClearExplosion
 	call CheckBulletHitMonster
+	call MonsterHitPlayer
 	call UpdateMonster
 	call ShowInvader
 	call ShowBullet
@@ -586,6 +587,55 @@ nochange:
 	ret
 CheckBulletHitMonster ENDP
 
+;玩家被怪物撞到
+MonsterHitPlayer PROC USES eax ecx edx
+	mov dl, MonsterX
+	mov ecx, LENGTHOF MonsterSymbol
+checkAllBlock:
+	mov al, InvaderX
+	mov ah, InvaderY
+	sub ah, 1			; plane head
+	cmp al, dl
+	je checkHead
+	add ah, 1			; plane left
+	sub al, 1
+	cmp al, dl
+	je checkLeft
+	add al, 2
+	cmp al, dl
+	je checkRight
+	jmp nextCheck
+	
+checkHead:	
+	cmp ah, MonsterY
+	je samePlace
+	jmp endTheCheck
+	
+checkLeft:
+	cmp ah, MonsterY
+	je samePlace
+	jmp endTheCheck
+
+checkRight:
+	cmp ah, MonsterY
+	je samePlace
+	jmp endTheCheck
+	
+samePlace:	
+	mov MonsterHitBoundryFlag, 1
+	mov explosionFlag, 1
+	add MonsterBackColor, 16
+	jmp endTheCheck
+	
+nextCheck:	
+	inc dl
+	loop checkAllBlock
+	
+endTheCheck:
+	ret
+	
+MonsterHitPlayer ENDP
+
 ;產生爆炸
 ShowExplosion PROC USES eax edx
 	cmp explosionFlag, 0
@@ -766,6 +816,8 @@ L5: ;三關都贏了要繼續的話就初始化
 	mov thirdroundFlag, 0
 	mov restartFlag, 1
 	mov MonsterMoveSpeed, 100
+	mov InvaderX, 20
+	mov InvaderY, 25
 	ret
 	
 L4:	;判斷還有沒有命
@@ -794,6 +846,8 @@ L1: ;初始化值
 	mov secondroundFlag, 0
 	mov thirdroundFlag, 0
 	mov MonsterMoveSpeed, 100
+	mov InvaderX, 20
+	mov InvaderY, 25
 	ret	
 CheckLife ENDP
 
