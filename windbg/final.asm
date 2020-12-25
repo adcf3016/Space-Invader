@@ -59,7 +59,7 @@ lifeX					BYTE	15
 life					DWORD	5
 initLife				DWORD	5
 
-particleSymbol		BYTE	0fh, 0
+particleSymbol		BYTE	"*", 0
 particleResetSymbol	BYTE	" "
 particleX			BYTE	?
 particleY			BYTE	?
@@ -89,8 +89,8 @@ secondroundCaption BYTE		"Game Message", 0
 secondroundString  BYTE		"Go to second round!!!", 0 
 thirdroundCaption BYTE		"Game Message",0
 thirdroundString  BYTE		"Go to evil round!!!",0
-secondScore DWORD   3
-thirdScore  DWORD   5
+secondScore DWORD   5
+thirdScore  DWORD   10
 secondroundFlag BYTE	0
 thirdroundFlag  BYTE	0
 restartFlag		BYTE	0
@@ -876,14 +876,14 @@ HandleKeyEvent PROC
 	je Up
 	cmp al, 'W'
 	je Up
-	cmp ax, 4800h	; Gray left Arrow
+	cmp ax, 4800h	; Gray Up Arrow
 	je Up
 	
 	cmp al, 's'
 	je Down
 	cmp al, 'S'
 	je Down
-	cmp ax, 5000h	; Gray left Arrow
+	cmp ax, 5000h	; Gray Down Arrow
 	je Down
 	
 	cmp al, ' '
