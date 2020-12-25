@@ -19,7 +19,9 @@ lossCaption		BYTE	"Game Message", 0
 lossQuestion	BYTE	"You Lose!", 0dh, 0ah
 				BYTE	"Would you like to try again?", 0
 
-Invader			BYTE	"^", "/|\\", "^", 0	
+Invader			BYTE	"^", 0h 	
+Invader2		BYTE	"/|\", 0h
+Invader3		BYTE	"^", 0h
 InvaderMoveStep	BYTE	3
 InvaderFrontColor	BYTE	white
 InvaderBackColor	BYTE	green*16
@@ -223,9 +225,6 @@ L0:
 	popad
 	ret
 Intro ENDP
-
-; TODO print all of the plane
-;PrintAllOfPlane PROC USES edx
 	
 
 
@@ -320,37 +319,33 @@ stay:
 ActivateBullet ENDP
 
 ;顯示游標位置
-ShowInvader PROC USES eax edx esi
+ShowInvader PROC USES eax edx
 	xor eax, eax
 	mov al, InvaderBackColor
 	mov dl, frontColorMask
 	and InvaderFrontColor, dl
 	add al, InvaderFrontColor
 	call SetTextColor
-
+	
 	mov dh, InvaderY
 	mov dl, InvaderX
-	mov esi, offset Invader	
-	push edx
-	add dh, 1
-	sub dl, 1
-	call Gotoxy
-	add esi, 1
-	mov edx, [esi]
-	call WriteString
-	pop edx
-	push edx
-	add dh, 1
-	add dl, 1
-	call Gotoxy
-	add esi, 3
-	mov edx, [esi]
-	call WriteString
-	pop edx
-	sub dh, 2
+	sub dh, 1
 	call Gotoxy
 	mov edx, offset Invader
 	call WriteString
+	mov dh, InvaderY
+	mov dl, InvaderX
+	sub dl, 1
+	call Gotoxy
+	mov edx, offset Invader2
+	call WriteString
+	mov dh, InvaderY
+	mov dl, InvaderX
+	add dh, 1
+	call Gotoxy
+	mov edx, offset Invader3
+	call WriteString
+	
 	
 	ret
 ShowInvader ENDP
