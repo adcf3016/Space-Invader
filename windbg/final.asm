@@ -7,6 +7,7 @@ main EQU start@0
 screenColumns		DWORD	40
 screenLeftBoundry	BYTE	1
 screenRightBoundry	BYTE	39
+screenUpBoundry		BYTE	2
 screenDownBoundry	BYTE	25
 QuitFlag			BYTE	0
 
@@ -23,8 +24,9 @@ Invader			BYTE	"^", 0h
 Invader2		BYTE	"/|\", 0h
 Invader3		BYTE	"-", 0h
 InvaderMoveStep	BYTE	3
+InvaderUpDownStep BYTE 	1
 InvaderFrontColor	BYTE	white
-InvaderBackColor	BYTE	green*16
+InvaderBackColor	BYTE	gray*16
 InvaderX			BYTE	20
 InvaderY			BYTE	25
 OldInvaderX		BYTE	20
@@ -474,9 +476,18 @@ ShowLevel PROC USES eax edx
 	call Gotoxy
 	cmp secondroundFlag, 0 ;若secondroundFlag=0則維持
 	je remain
+	cmp level, 2
+	je remain
+	cmp level, 2
+	jae dontReset
+	call ResetPos
+dontReset:
 	mov level, 2
 	cmp thirdroundFlag, 0  ;若thirdroundFlag=0則維持
 	je remain
+	cmp level, 3
+	je remain
+	call ResetPos
 	mov level, 3
 
 	
@@ -485,6 +496,13 @@ remain:
 	call WriteDec
 	ret
 ShowLevel ENDP
+
+ResetPos PROC
+	mov InvaderX, 20
+	mov InvaderY, 25
+	ret
+	
+ResetPos ENDP
 
 ;清空生命值
 ClearShowLife PROC USES eax edx
@@ -793,6 +811,20 @@ HandleKeyEvent PROC
 	cmp ax, 4D00h	; Gray Right Arrow
 	je Right
 	
+	cmp al, 'w'
+	je Up
+	cmp al, 'W'
+	je Up
+	cmp ax, 4800h	; Gray left Arrow
+	je Up
+	
+	cmp al, 's'
+	je Down
+	cmp al, 'S'
+	je Down
+	cmp ax, 5000h	; Gray left Arrow
+	je Down
+	
 	cmp al, ' '
 	je Fire
 	cmp dx, 001Bh	; key ESC
@@ -805,6 +837,14 @@ Left:
 	
 Right:
 	call HandleKeyEventRightMove
+	jmp L1
+	
+Up:
+	call HandleKeyEventUpMove
+	jmp L1
+	
+Down:
+	call HandleKeyEventDownMove
 	jmp L1
 	
 Fire:
@@ -844,5 +884,30 @@ HandleKeyEventRightMove PROC USES eax
 stay:
 	ret
 HandleKeyEventRightMove ENDP 
+
+;上方輸入
+HandleKeyEventUpMove PROC USES eax
+	mov al, screenUpBoundry
+	inc al
+	cmp InvaderY, al	; check right boundry
+	jbe stay
+	mov al, InvaderUpDownStep
+	sub InvaderY, al
+	
+stay:
+	ret
+HandleKeyEventUpMove ENDP 
+
+HandleKeyEventDownMove PROC USES eax
+	mov al, screenDownBoundry
+	dec al
+	cmp InvaderY, al	; check right boundry
+	jae stay
+	mov al, InvaderUpDownStep
+	add InvaderY, al
+	
+stay:
+	ret
+HandleKeyEventDownMove ENDP 
 
 END main 
